@@ -7,7 +7,7 @@
 Micro service for exchange rates from banks in Vietnam:
 - [x] Techcombank
 - [ ] Vietcombank
-- [ ] BIDV
+- [x] BIDV
 - [ ] Bangkok Bank
 
 ## Requirements

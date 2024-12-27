@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from datetime import datetime
 from .services.techcombank import Techcombank
+from .services.bidv import BIDV
+
 # App
 app = FastAPI(title="VN Currency Rates",
               description="Get currency rates", version="1.0")
@@ -11,7 +13,10 @@ def read_root():
 
 # Main roots for banks
 @app.get("/currency_rate/{bank_name}/{from_currency}/{to_currency}/{date_rate}")
-def get_currency_rate(bank_name: str, from_currency: str, to_currency: str, date_rate: str):
+async def get_currency_rate(bank_name: str, from_currency: str, to_currency: str, date_rate: str):
     date_rate = datetime.strptime(date_rate, "%Y%m%d")
-    if bank_name == "techcombank":
+    if bank_name.upper() == "TECHCOMBANK":
         return Techcombank().get_rate(from_currency, to_currency, date_rate)
+
+    elif bank_name.upper() == "BIDV":
+        return BIDV().get_rate(from_currency, to_currency, date_rate)

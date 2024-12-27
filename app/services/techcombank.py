@@ -35,9 +35,17 @@ class Techcombank:
                     data, from_currency, to_currency)
 
             if not result:
-                return {"status": "error", "code": 10, "message": "No data"}
+                return {
+                    "status": "error",
+                    "code": 10,
+                    "message": "No data or invalid currency code"
+                }
 
-            return {"status": "success", "code": 200, "result": result}
+            return {
+                "status": "success",
+                "code": 200,
+                "result": result
+            }
 
         except requests.exceptions.RequestException:
             return {
@@ -80,8 +88,8 @@ class Techcombank:
                     "updated_time": updated_time,
                     "sell_cash": float(line.get("askRateTM", 0)) or None,
                     "sell_transfer": float(line.get("askRate", 0)) or None,
-                    "purchase_cash": float(line.get("bidRateTM", 0)) or None,
-                    "purchase_transfer": float(line.get("bidRateCK", 0)) or None,
+                    "buy_cash": float(line.get("bidRateTM", 0)) or None,
+                    "buy_transfer": float(line.get("bidRateCK", 0)) or None,
                 }
 
         return {}
