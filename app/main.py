@@ -5,9 +5,6 @@ from .services.techcombank import Techcombank
 app = FastAPI(title="VN Currency Rates",
               description="Get currency rates", version="1.0")
 
-# Route
-
-
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the FastAPI Microservice"}

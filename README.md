@@ -20,8 +20,14 @@ pip3 install -r requirements.txt
 
 ## Start the service
 
+- Development
 ```
-python3 vn_currency_rates
+fastapi dev
+```
+
+- Production
+```
+fastapi run
 ```
 
 ## API
