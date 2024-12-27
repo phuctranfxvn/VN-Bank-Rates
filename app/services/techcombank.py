@@ -9,6 +9,51 @@ API_URL = (
 
 
 class Techcombank:
+
+    def get_data_from_techcombank(self, date_rate):
+        url = API_URL % {"rate_date": date_rate.strftime("%Y-%m-%d")}
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+
+    def get_all_rates(self, date_rate):
+        result = []
+        try:
+            data = self.get_data_from_techcombank(date_rate=date_rate).get(
+                "exchangeRate", {}).get("data", [])
+            for line in data:
+                updated_time = None
+                if line.get("inputDate"):
+                    dt_obj = datetime.strptime(
+                        line.get("inputDate"), "%Y-%m-%dT%H:%M:%S.%fZ")
+                    updated_time = dt_obj.strftime("%Y-%m-%d %H:%M:%S")
+                currency_code = line["sourceCurrency"]
+
+                if currency_code == "USD":
+                    currency_code = line["label"].replace(" ", "")
+
+                result.append({
+                    "updated_time": updated_time,
+                    "currency_code": currency_code,
+                    "sell_cash": float(line.get("askRateTM", 0)) or None,
+                    "sell_transfer": float(line.get("askRate", 0)) or None,
+                    "buy_cash": float(line.get("bidRateTM", 0)) or None,
+                    "buy_transfer": float(line.get("bidRateCK", 0)) or None,
+                })
+
+            return {
+                "status": "success",
+                "code": 200,
+                "result": result
+            }
+
+        except:
+            return {
+                "status": "error",
+                "code": 10,
+                "message": "Unable to connect to Techcombank to get rates",
+            }
+
     def get_rate(self, from_currency: str, to_currency: str, date_rate: datetime):
         url = API_URL % {"rate_date": date_rate.strftime("%Y-%m-%d")}
         from_currency, to_currency = from_currency.upper(), to_currency.upper()

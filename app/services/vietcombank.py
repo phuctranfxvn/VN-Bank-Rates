@@ -7,13 +7,49 @@ API_URL = "https://www.vietcombank.com.vn/api/exchangerates?date=%(rate_date)s"
 
 
 class Vietcombank:
-    def get_rate(self, from_currency: str, to_currency: str, date_rate: datetime):
+    
+    def get_data_from_vietcombank(self, date_rate):
         url = API_URL % {"rate_date": date_rate.strftime("%Y-%m-%d")}
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    
+    def get_all_rates(self, date_rate):
+        result = []
+        try:
+            data = self.get_data_from_vietcombank(date_rate=date_rate)
+            rate_data = data.get("Data")
+            updated_time = data.get("UpdatedDate")
+            updated_time = datetime.fromisoformat(updated_time)
+            updated_time = updated_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            for line in rate_data:
+                result.append({
+                    "currency_code": line["currencyCode"],
+                    "updated_time": updated_time,
+                    "sell_cash": float(line.get("sell", 0)) or None,
+                    "sell_transfer": float(line.get("sell", 0)) or None,
+                    "buy_cash": float(line.get("cash", 0)) or None,
+                    "buy_transfer": float(line.get("transfer", 0)) or None,
+                })
+
+            return {
+                "status": "success",
+                "code": 200,
+                "result": result
+            }
+
+        except:
+            return {
+                "status": "error",
+                "code": 10,
+                "message": "Unable to connect to Vietcombank to get rates",
+            }
+    
+    def get_rate(self, from_currency: str, to_currency: str, date_rate: datetime):
         from_currency, to_currency = from_currency.upper(), to_currency.upper()
         try:
-            response = requests.get(url)
-            response.raise_for_status()
-            data = response.json()
+            data = self.get_data_from_vietcombank(date_rate=date_rate)
 
             if to_currency != "VND":
                 currency1_vnd_rate = self.get_exchange_rate_data(
